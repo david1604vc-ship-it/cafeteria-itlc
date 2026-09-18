@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'https://7cqf48gr-4000.usw3.devtunnels.ms/api'
+  baseURL: import.meta.env.VITE_API_URL || 'https://7cqf48gr-4000.usw3.devtunnels.ms/api'
 })
 
 // Agrega el token automáticamente a cada petición

@@ -2,33 +2,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Pedido.css'
 
-function Pedido() {
+function Sidebar() {
   const navigate = useNavigate()
-  const [items, setItems] = useState([
-    { n: 'Club Sándwich', i: '🥪', p: 80, u: '1 plato', qty: 1 },
-    { n: 'Frappe Mocha', i: '🍫', p: 42, u: '1 vaso', qty: 2 },
-    { n: 'Cheesecake de Fresa', i: '🍰', p: 50, u: '1 pieza', qty: 1 },
-  ])
-  const [ticketOpen, setTicketOpen] = useState(true)
-  const [nota, setNota] = useState('')
-
-  const total = items.reduce((a, b) => a + b.p * b.qty, 0)
-
-  const chQty = (i, d) => {
-    setItems(prev => prev.map((it, idx) =>
-      idx === i ? { ...it, qty: Math.max(1, it.qty + d) } : it
-    ))
-  }
-
-  const del = (i) => setItems(prev => prev.filter((_, idx) => idx !== i))
-  const vaciar = () => setItems([])
-
-  const now = new Date()
-  const fecha = now.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })
-  const hora = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
-  const folio = '#' + String(Math.floor(1000 + Math.random() * 9000))
-
-  const Sidebar = () => (
+  return (
     <div className="pd-sidebar">
       <div className="pd-brand"><span className="pd-brand-icon">☕</span><span className="pd-brand-label">Cafetería</span></div>
       <nav className="pd-nav">
@@ -61,6 +37,34 @@ function Pedido() {
       </div>
     </div>
   )
+}
+
+function Pedido() {
+  const navigate = useNavigate()
+  const [items, setItems] = useState([
+    { n: 'Club Sándwich', i: '🥪', p: 80, u: '1 plato', qty: 1 },
+    { n: 'Frappe Mocha', i: '🍫', p: 42, u: '1 vaso', qty: 2 },
+    { n: 'Cheesecake de Fresa', i: '🍰', p: 50, u: '1 pieza', qty: 1 },
+  ])
+  const [ticketOpen, setTicketOpen] = useState(true)
+  const [nota, setNota] = useState('')
+
+  const total = items.reduce((a, b) => a + b.p * b.qty, 0)
+
+  const chQty = (i, d) => {
+    setItems(prev => prev.map((it, idx) =>
+      idx === i ? { ...it, qty: Math.max(1, it.qty + d) } : it
+    ))
+  }
+
+  const del = (i) => setItems(prev => prev.filter((_, idx) => idx !== i))
+  const vaciar = () => setItems([])
+
+  const now = new Date()
+  const fecha = now.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  const hora = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
+  // Folio estable: se genera una sola vez en el montaje del componente
+  const [folio] = useState(() => '#' + String(Math.floor(1000 + Math.random() * 9000)))
 
   return (
     <div className="pd-layout">

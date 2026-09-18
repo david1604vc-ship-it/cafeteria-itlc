@@ -116,6 +116,95 @@ const RESENAS_INICIALES = {
   ],
 }
 
+function StarRow({ prod, rating, numResenas, onRate, onVerResenas }) {
+  return (
+    <div>
+      <div className="mn-stars-row">
+        {[1,2,3,4,5].map(v => (
+          <span
+            key={v}
+            className="mn-star"
+            onClick={() => onRate(prod.n, v)}
+          >
+            {v <= rating ? '⭐' : '☆'}
+          </span>
+        ))}
+        <span className="mn-rcount">{numResenas} reseñas</span>
+      </div>
+      <span className="mn-reviews-link" onClick={() => onVerResenas(prod)}>
+        Ver reseñas ›
+      </span>
+    </div>
+  )
+}
+
+function CardHoriz({ prod, fav, onToggleFav, onAdd, rating, numResenas, onRate, onVerResenas }) {
+  return (
+    <div className="mn-card-horiz">
+      <div className="mn-card-img">{prod.i}</div>
+      <div className="mn-card-body">
+        <div className="mn-card-name">{prod.n}</div>
+        <div className="mn-card-desc">{prod.d}</div>
+        <div className="mn-card-unit">{prod.u}</div>
+        <StarRow prod={prod} rating={rating} numResenas={numResenas} onRate={onRate} onVerResenas={onVerResenas} />
+        <div className="mn-card-footer">
+          <span className="mn-card-price">${prod.p}.00</span>
+          <div className="mn-card-actions">
+            <button
+              className={`mn-fav-btn ${fav ? 'active' : ''}`}
+              onClick={() => onToggleFav(prod.n)}
+              title="Agregar a favoritos"
+            >
+              {fav ? '❤️' : '🤍'}
+            </button>
+            <button className="mn-add-btn" onClick={() => onAdd(prod)}>+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function Sidebar() {
+  const navigate = useNavigate()
+  return (
+    <div className="mn-sidebar" id="sidebar">
+      <div className="mn-brand">
+        <span className="mn-brand-icon">☕</span>
+        <span className="mn-brand-label">Cafetería</span>
+      </div>
+      <nav className="mn-nav">
+        <div className="mn-nav-item" data-label="Inicio" onClick={() => navigate('/home')}>
+          <svg className="mn-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span className="mn-nav-label">Inicio</span>
+        </div>
+        <div className="mn-nav-item active" data-label="Menú">
+          <svg className="mn-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+          <span className="mn-nav-label">Menú</span>
+        </div>
+        <div className="mn-nav-item" data-label="Pedidos" onClick={() => navigate('/pedido')}>
+          <svg className="mn-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+          <span className="mn-nav-label">Pedidos</span>
+        </div>
+        <div className="mn-nav-item" data-label="Pagos" onClick={() => navigate('/pago')}>
+          <svg className="mn-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          <span className="mn-nav-label">Pagos</span>
+        </div>
+        <div className="mn-nav-item" data-label="Cuenta">
+          <svg className="mn-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span className="mn-nav-label">Cuenta</span>
+        </div>
+      </nav>
+      <div className="mn-footer">
+        <div className="mn-logout" onClick={() => navigate('/')}>
+          <svg className="mn-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <span className="mn-logout-label">Salir</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function Menu() {
   const navigate = useNavigate()
   const [screen, setScreen] = useState('menu')
@@ -200,90 +289,18 @@ function Menu() {
       : DATA[secActiva].prods.filter(p => p.sub === chipActivo))
     : []
 
-  const StarRow = ({ prod }) => {
-    const rating = getRating(prod.n)
-    const rs = resenas[prod.n] || []
-    return (
-      <div>
-        <div className="mn-stars-row">
-          {[1,2,3,4,5].map(v => (
-            <span
-              key={v}
-              className="mn-star"
-              onClick={() => setRatings(prev => ({ ...prev, [prod.n]: v }))}
-            >
-              {v <= rating ? '⭐' : '☆'}
-            </span>
-          ))}
-          <span className="mn-rcount">{rs.length} reseñas</span>
-        </div>
-        <span className="mn-reviews-link" onClick={() => openResenas(prod)}>
-          Ver reseñas ›
-        </span>
-      </div>
-    )
-  }
-
-  const CardHoriz = ({ prod }) => (
-    <div className="mn-card-horiz">
-      <div className="mn-card-img">{prod.i}</div>
-      <div className="mn-card-body">
-        <div className="mn-card-name">{prod.n}</div>
-        <div className="mn-card-desc">{prod.d}</div>
-        <div className="mn-card-unit">{prod.u}</div>
-        <StarRow prod={prod} />
-        <div className="mn-card-footer">
-          <span className="mn-card-price">${prod.p}.00</span>
-          <div className="mn-card-actions">
-            <button
-              className={`mn-fav-btn ${favoritos[prod.n] ? 'active' : ''}`}
-              onClick={() => toggleFav(prod.n)}
-              title="Agregar a favoritos"
-            >
-              {favoritos[prod.n] ? '❤️' : '🤍'}
-            </button>
-            <button className="mn-add-btn" onClick={() => agregarItem(prod)}>+</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-
-  const Sidebar = () => (
-    <div className="mn-sidebar" id="sidebar">
-      <div className="mn-brand">
-        <span className="mn-brand-icon">☕</span>
-        <span className="mn-brand-label">Cafetería</span>
-      </div>
-      <nav className="mn-nav">
-        <div className="mn-nav-item" data-label="Inicio" onClick={() => navigate('/home')}>
-          <svg className="mn-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          <span className="mn-nav-label">Inicio</span>
-        </div>
-        <div className="mn-nav-item active" data-label="Menú">
-          <svg className="mn-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
-          <span className="mn-nav-label">Menú</span>
-        </div>
-        <div className="mn-nav-item" data-label="Pedidos" onClick={() => navigate('/pedido')}>
-          <svg className="mn-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
-          <span className="mn-nav-label">Pedidos</span>
-        </div>
-        <div className="mn-nav-item" data-label="Pagos" onClick={() => navigate('/pago')}>
-          <svg className="mn-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-          <span className="mn-nav-label">Pagos</span>
-        </div>
-        <div className="mn-nav-item" data-label="Cuenta">
-          <svg className="mn-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          <span className="mn-nav-label">Cuenta</span>
-        </div>
-      </nav>
-      <div className="mn-footer">
-        <div className="mn-logout" onClick={() => navigate('/')}>
-          <svg className="mn-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          <span className="mn-logout-label">Salir</span>
-        </div>
-      </div>
-    </div>
+  const renderCard = (p) => (
+    <CardHoriz
+      key={p.n}
+      prod={p}
+      fav={!!favoritos[p.n]}
+      onToggleFav={toggleFav}
+      onAdd={agregarItem}
+      rating={getRating(p.n)}
+      numResenas={(resenas[p.n] || []).length}
+      onRate={(nombre, v) => setRatings(prev => ({ ...prev, [nombre]: v }))}
+      onVerResenas={openResenas}
+    />
   )
 
   if (resenasScreen && prodActivo) {
@@ -452,7 +469,7 @@ function Menu() {
                   <div className="mn-grid-horiz">
                     {DATA[sec].prods
                       .filter(p => POPULARES[sec].includes(p.n))
-                      .map((p, i) => <CardHoriz key={i} prod={p} />)
+                      .map(p => renderCard(p))
                     }
                   </div>
                 </div>
@@ -519,7 +536,7 @@ function Menu() {
                 </div>
               )}
               <div className="mn-grid-horiz">
-                {prodsFull.map((p, i) => <CardHoriz key={i} prod={p} />)}
+                {prodsFull.map(p => renderCard(p))}
               </div>
             </div>
           )}

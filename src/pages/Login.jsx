@@ -3,6 +3,16 @@ import { useNavigate } from 'react-router-dom'
 import api from '../api/axios'
 import './Login.css'
 
+function EyeIcon({ open }) {
+  return (
+    <svg className="rc-eye-svg" viewBox="0 0 24 24">
+      <path className="eye-outer" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+      <circle className="eye-pupil" cx="12" cy="12" r={open ? 0 : 3}/>
+      <line className="eye-slash" x1="3" y1="3" x2="21" y2="21" style={{opacity: open ? 1 : 0}}/>
+    </svg>
+  )
+}
+
 function Login() {
   const [tab, setTab] = useState('login')
   const [showPass1, setShowPass1] = useState(false)
@@ -83,14 +93,6 @@ function Login() {
       setLoadingReg(false)
     }
   }
-
-  const EyeIcon = ({ open }) => (
-    <svg className="rc-eye-svg" viewBox="0 0 24 24">
-      <path className="eye-outer" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-      <circle className="eye-pupil" cx="12" cy="12" r={open ? 0 : 3}/>
-      <line className="eye-slash" x1="3" y1="3" x2="21" y2="21" style={{opacity: open ? 1 : 0}}/>
-    </svg>
-  )
 
   return (
     <div className="auth-wrapper">

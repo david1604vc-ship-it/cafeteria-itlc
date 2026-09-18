@@ -3,34 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import './Pedido.css'
 import './Pago.css'
 
-function Pago() {
+function Sidebar() {
   const navigate = useNavigate()
-  const [metodo, setMetodo] = useState('efectivo')
-  const [procesando, setProcesando] = useState(false)
-  const [efectivoConque, setEfectivoConque] = useState('')
-
-  // Datos del pedido (en producción vendrían por state/context)
-  const items = [
-    { n: 'Club Sándwich', p: 80, qty: 1 },
-    { n: 'Frappe Mocha', p: 42, qty: 2 },
-    { n: 'Cheesecake de Fresa', p: 50, qty: 1 },
-  ]
-  const subtotal = items.reduce((a, b) => a + b.p * b.qty, 0)
-  const total = subtotal
-
-  const cambioEfectivo = efectivoConque
-    ? Math.max(0, parseFloat(efectivoConque) - total).toFixed(2)
-    : null
-
-  const confirmar = () => {
-    if (metodo === 'efectivo' && efectivoConque && parseFloat(efectivoConque) < total) return
-    setProcesando(true)
-    setTimeout(() => {
-      navigate('/pago-exitoso')
-    }, 1800)
-  }
-
-  const Sidebar = () => (
+  return (
     <div className="pd-sidebar">
       <div className="pd-brand"><span className="pd-brand-icon">☕</span><span className="pd-brand-label">Cafetería</span></div>
       <nav className="pd-nav">
@@ -63,6 +38,34 @@ function Pago() {
       </div>
     </div>
   )
+}
+
+function Pago() {
+  const navigate = useNavigate()
+  const [metodo, setMetodo] = useState('efectivo')
+  const [procesando, setProcesando] = useState(false)
+  const [efectivoConque, setEfectivoConque] = useState('')
+
+  // Datos del pedido (en producción vendrían por state/context)
+  const items = [
+    { n: 'Club Sándwich', p: 80, qty: 1 },
+    { n: 'Frappe Mocha', p: 42, qty: 2 },
+    { n: 'Cheesecake de Fresa', p: 50, qty: 1 },
+  ]
+  const subtotal = items.reduce((a, b) => a + b.p * b.qty, 0)
+  const total = subtotal
+
+  const cambioEfectivo = efectivoConque
+    ? Math.max(0, parseFloat(efectivoConque) - total).toFixed(2)
+    : null
+
+  const confirmar = () => {
+    if (metodo === 'efectivo' && efectivoConque && parseFloat(efectivoConque) < total) return
+    setProcesando(true)
+    setTimeout(() => {
+      navigate('/pago-exitoso')
+    }, 1800)
+  }
 
   return (
     <div className="pd-layout">

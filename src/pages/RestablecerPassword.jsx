@@ -3,6 +3,24 @@ import { useNavigate } from 'react-router-dom'
 import api from '../api/axios'
 import './Recovery.css'
 
+function EyeIcon({ open }) {
+  return (
+    <svg className="rc-eye-svg" viewBox="0 0 24 24">
+      <path className="rc-eye-outer" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+      <circle className="rc-eye-pupil" cx="12" cy="12" r={open ? 0 : 3}/>
+      <line className="rc-eye-slash" x1="3" y1="3" x2="21" y2="21" style={{ opacity: open ? 1 : 0 }}/>
+    </svg>
+  )
+}
+
+function CheckIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+      <polyline points="2,6 5,9 10,3" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
 function RestablecerPassword() {
   const navigate = useNavigate()
   const [showPass1, setShowPass1] = useState(false)
@@ -82,20 +100,6 @@ function RestablecerPassword() {
       setCargando(false)
     }
   }
-
-  const EyeIcon = ({ open }) => (
-    <svg className="rc-eye-svg" viewBox="0 0 24 24">
-      <path className="rc-eye-outer" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-      <circle className="rc-eye-pupil" cx="12" cy="12" r={open ? 0 : 3}/>
-      <line className="rc-eye-slash" x1="3" y1="3" x2="21" y2="21" style={{ opacity: open ? 1 : 0 }}/>
-    </svg>
-  )
-
-  const CheckIcon = () => (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-      <polyline points="2,6 5,9 10,3" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  )
 
   return (
     <div className="rc-wrap">

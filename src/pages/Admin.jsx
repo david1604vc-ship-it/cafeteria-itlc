@@ -1,62 +1,9 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import api from '../api/axios'
 import './Admin.css'
 
-function Admin() {
-  const navigate = useNavigate()
-  const [screen, setScreen] = useState('dashboard')
-  const [usuarios, setUsuarios] = useState([])
-  const [cargando, setCargando] = useState(false)
-  const [error, setError] = useState('')
-
-  const goTo = (s) => {
-    setScreen(s)
-    if (s === 'usuarios') cargarUsuarios()
-  }
-
-  const cargarUsuarios = async () => {
-    setCargando(true)
-    setError('')
-    try {
-      const res = await api.get('/usuarios')
-      setUsuarios(res.data)
-    } catch (err) {
-      setError('Error al cargar usuarios')
-    } finally {
-      setCargando(false)
-    }
-  }
-
-  const cambiarEstado = async (id, activo) => {
-    try {
-      await api.put(`/usuarios/${id}/estado`, { activo: activo ? 0 : 1 })
-      cargarUsuarios()
-    } catch (err) {
-      alert('Error al cambiar estado')
-    }
-  }
-
-  const desbloquear = async (id) => {
-    try {
-      await api.put(`/usuarios/${id}/desbloquear`)
-      cargarUsuarios()
-    } catch (err) {
-      alert('Error al desbloquear')
-    }
-  }
-
-  const eliminar = async (id) => {
-    if (!window.confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.')) return
-    try {
-      await api.delete(`/usuarios/${id}`)
-      cargarUsuarios()
-    } catch (err) {
-      alert('Error al eliminar usuario')
-    }
-  }
-
-  const Sidebar = () => (
+function Sidebar({ screen, goTo }) {
+  return (
     <div className="ad-sidebar">
       <div className="ad-brand">
         <div className="ad-avatar">👤</div>
@@ -89,17 +36,70 @@ function Admin() {
 
       </nav>
       <div className="ad-footer">
-        <div className="ad-logout" onClick={() => { localStorage.clear(); navigate('/') }}>
+        <div className="ad-logout" onClick={() => { localStorage.clear(); window.location.href = '/' }}>
           <svg className="ad-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           Cerrar sesión
         </div>
       </div>
     </div>
   )
+}
+
+function Admin() {
+  const [screen, setScreen] = useState('dashboard')
+  const [usuarios, setUsuarios] = useState([])
+  const [cargando, setCargando] = useState(false)
+  const [error, setError] = useState('')
+
+  const goTo = (s) => {
+    setScreen(s)
+    if (s === 'usuarios') cargarUsuarios()
+  }
+
+  const cargarUsuarios = async () => {
+    setCargando(true)
+    setError('')
+    try {
+      const res = await api.get('/usuarios')
+      setUsuarios(res.data)
+    } catch {
+      setError('Error al cargar usuarios')
+    } finally {
+      setCargando(false)
+    }
+  }
+
+  const cambiarEstado = async (id, activo) => {
+    try {
+      await api.put(`/usuarios/${id}/estado`, { activo: activo ? 0 : 1 })
+      cargarUsuarios()
+    } catch {
+      alert('Error al cambiar estado')
+    }
+  }
+
+  const desbloquear = async (id) => {
+    try {
+      await api.put(`/usuarios/${id}/desbloquear`)
+      cargarUsuarios()
+    } catch {
+      alert('Error al desbloquear')
+    }
+  }
+
+  const eliminar = async (id) => {
+    if (!window.confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.')) return
+    try {
+      await api.delete(`/usuarios/${id}`)
+      cargarUsuarios()
+    } catch {
+      alert('Error al eliminar usuario')
+    }
+  }
 
   return (
     <div className="ad-layout">
-      <Sidebar />
+      <Sidebar screen={screen} goTo={goTo} />
       <div className="ad-main">
 
         {/* DASHBOARD */}
