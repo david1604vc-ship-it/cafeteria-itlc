@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
+import api from '../api/axios'
 import './Pedido.css'
 import './Pago.css'
+import { useCart } from '../context/CartContext'
 
 function Sidebar() {
   const navigate = useNavigate()
@@ -42,29 +44,64 @@ function Sidebar() {
 
 function Pago() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { carrito, totalPrecio, vaciar, setUltimoPedido } = useCart()
+  const nota = location.state?.nota || ''
+
   const [metodo, setMetodo] = useState('efectivo')
   const [procesando, setProcesando] = useState(false)
+  const [errorPago, setErrorPago] = useState('')
   const [efectivoConque, setEfectivoConque] = useState('')
 
-  // Datos del pedido (en producción vendrían por state/context)
-  const items = [
-    { n: 'Club Sándwich', p: 80, qty: 1 },
-    { n: 'Frappe Mocha', p: 42, qty: 2 },
-    { n: 'Cheesecake de Fresa', p: 50, qty: 1 },
-  ]
-  const subtotal = items.reduce((a, b) => a + b.p * b.qty, 0)
-  const total = subtotal
+  const total = totalPrecio
 
   const cambioEfectivo = efectivoConque
     ? Math.max(0, parseFloat(efectivoConque) - total).toFixed(2)
     : null
 
-  const confirmar = () => {
+  const confirmar = async () => {
+    if (carrito.length === 0) return
     if (metodo === 'efectivo' && efectivoConque && parseFloat(efectivoConque) < total) return
     setProcesando(true)
-    setTimeout(() => {
+    setErrorPago('')
+    try {
+      const res = await api.post('/pedidos', {
+        productos: carrito.map(it => ({ id_producto: it.id_producto, cantidad: it.qty })),
+        nota,
+        metodo_pago: metodo,
+      })
+      setUltimoPedido({ folio: res.data.folio, total: res.data.total, id_pedido: res.data.id_pedido, metodo })
+      vaciar()
       navigate('/pago-exitoso')
-    }, 1800)
+    } catch (err) {
+      setErrorPago(err.response?.data?.mensaje || 'Error al procesar el pago. Intenta de nuevo.')
+      setProcesando(false)
+    }
+  }
+
+  if (carrito.length === 0) {
+    return (
+      <div className="pd-layout">
+        <Sidebar />
+        <div className="pd-main">
+          <div className="pd-header">
+            <div>
+              <div className="pd-title">Confirmar pago</div>
+              <div className="pd-sub">No hay nada que pagar</div>
+            </div>
+            <button className="pd-seguir-btn" onClick={() => navigate('/menu')}>
+              Ir al menú
+            </button>
+          </div>
+          <div className="pd-empty" style={{ marginTop: '30px' }}>
+            <div className="pd-empty-icon">🧾</div>
+            <div className="pd-empty-t">Tu carrito está vacío</div>
+            <div className="pd-empty-s">Agrega productos antes de pagar</div>
+            <button className="pd-menu-btn" onClick={() => navigate('/menu')}>Ir al menú</button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -141,7 +178,7 @@ function Pago() {
                       className="pg-input"
                       type="number"
                       min={total}
-                      placeholder={`${total}.00`}
+                      placeholder={`${total.toFixed(2)}`}
                       value={efectivoConque}
                       onChange={e => setEfectivoConque(e.target.value)}
                     />
@@ -178,55 +215,57 @@ function Pago() {
 
           {/* DERECHA — RESUMEN */}
           <div className="pd-right">
-            <div className="pd-card">
-              <div className="pd-card-header">
-                <span className="pd-card-title">Resumen del pedido</span>
+            <div className="pd-ticket-toggle">
+              <div className="pd-toggle-left">
+                <span className="pd-toggle-icon">🧾</span>
+                <span className="pd-toggle-label">Resumen del pedido</span>
               </div>
-              <div className="pg-resumen">
-                {items.map((it, i) => (
-                  <div key={i} className="pg-resumen-row">
-                    <span className="pg-resumen-nombre">{it.qty > 1 ? `${it.qty}× ` : ''}{it.n}</span>
-                    <span className="pg-resumen-precio">${(it.p * it.qty).toFixed(2)}</span>
-                  </div>
-                ))}
-                <hr className="pg-resumen-sep"/>
-                <div className="pg-resumen-row pg-total-row">
-                  <span>Total</span>
-                  <span className="pg-total-val">${total.toFixed(2)}</span>
-                </div>
-              </div>
+              <span className="pd-toggle-total">${total.toFixed(2)}</span>
             </div>
 
+            <div className="pd-ticket-paper">
+              <div className="pd-ticket-inner">
+                <div className="pd-t-brand">CAFETERÍA 2 ITLC</div>
+                <div className="pd-t-info">
+                  <div className="pd-t-info-row">Productos: <span>{carrito.reduce((a, b) => a + b.qty, 0)}</span></div>
+                  <div className="pd-t-info-row">Método: <span>{metodo.charAt(0).toUpperCase() + metodo.slice(1)}</span></div>
+                  {nota && <div className="pd-t-info-row">Nota: <span>{nota}</span></div>}
+                </div>
+                <hr className="pd-t-dash"/>
+                {carrito.map(it => (
+                  <div key={it.id_producto} className="pd-t-row">
+                    <span className="pd-t-rname">{it.n} ×{it.qty}</span>
+                    <span className="pd-t-rprice">${(it.p * it.qty).toFixed(2)}</span>
+                  </div>
+                ))}
+                <hr className="pd-t-dash"/>
+                <div className="pd-t-total-row">
+                  <span className="pd-t-total-lbl">Total:</span>
+                  <span className="pd-t-total-val">${total.toFixed(2)}</span>
+                </div>
+              </div>
+              <div className="pd-ticket-bottom"></div>
+            </div>
+
+            {errorPago && (
+              <div className="pg-error" style={{ marginBottom: '10px', textAlign: 'center' }}>{errorPago}</div>
+            )}
+
             <button
-              className={`pd-pagar-btn ${procesando ? 'procesando' : ''}`}
-              onClick={confirmar}
+              className="pd-pagar-btn"
               disabled={procesando || (metodo === 'efectivo' && efectivoConque && parseFloat(efectivoConque) < total)}
+              onClick={confirmar}
             >
-              {procesando ? (
-                <span className="pg-spinner-wrap">
-                  <span className="pg-spinner"></span> Procesando...
-                </span>
-              ) : `CONFIRMAR PAGO · $${total.toFixed(2)}`}
+              {procesando ? 'PROCESANDO...' : 'CONFIRMAR PEDIDO'}
             </button>
             <div className="pd-secure">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              Tu pago es seguro y encriptado
+              Tu pedido se registra al confirmar
             </div>
           </div>
 
         </div>
       </div>
-
-      {/* Overlay procesando */}
-      {procesando && (
-        <div className="pg-overlay">
-          <div className="pg-overlay-card">
-            <div className="pg-overlay-spinner"></div>
-            <div className="pg-overlay-text">Procesando tu pago...</div>
-            <div className="pg-overlay-sub">No cierres esta ventana</div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

@@ -1,10 +1,33 @@
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import api from '../api/axios'
 import './Home.css'
 import { useScrollSidebar } from '../hooks/useScrollSidebar'
 
 function Home() {
-useScrollSidebar()  
+  useScrollSidebar()
   const navigate = useNavigate()
+  const [promos, setPromos] = useState([])
+  const [destacados, setDestacados] = useState([])
+
+  useEffect(() => {
+    let vivo = true
+    ;(async () => {
+      try {
+        const [pr, prods] = await Promise.all([
+          api.get('/menu/promociones').catch(() => ({ data: [] })),
+          api.get('/menu/productos'),
+        ])
+        if (!vivo) return
+        setPromos(pr.data)
+        // Destacados: 4 productos de comida para la sección "populares"
+        setDestacados(prods.data.filter(p => p.id_categoria === 1).slice(0, 4))
+      } catch {
+        // silencioso: el home funciona sin promos
+      }
+    })()
+    return () => { vivo = false }
+  }, [])
 
   return (
     <div className="layout">
@@ -81,25 +104,62 @@ useScrollSidebar()
 
         <div className="section-title">Promociones</div>
         <div className="promos-grid">
-          <div className="promo-card">
-            <div className="promo-info">
-              <div className="promo-badge badge-combo">Combo del día</div>
-              <div className="promo-name">Sándwich + Bebida</div>
-              <p className="promo-desc">Disfruta nuestro combo especial del día.</p>
-              <div className="promo-price">$85.00</div>
+          {promos.length === 0 ? (
+            <>
+              <div className="promo-card">
+                <div className="promo-info">
+                  <div className="promo-badge badge-combo">Combo del día</div>
+                  <div className="promo-name">Sándwich + Bebida</div>
+                  <p className="promo-desc">Disfruta nuestro combo especial del día.</p>
+                  <div className="promo-price">$85.00</div>
+                </div>
+                <div className="promo-img">🥪</div>
+              </div>
+              <div className="promo-card">
+                <div className="promo-info">
+                  <div className="promo-badge badge-desc">Descuento</div>
+                  <div className="promo-name">Descuento en café</div>
+                  <p className="promo-desc">Todos los miércoles 20% de descuento en cafés seleccionados.</p>
+                  <div className="promo-price promo-off">20% OFF</div>
+                </div>
+                <div className="promo-img">☕</div>
+              </div>
+            </>
+          ) : promos.map(pr => (
+            <div key={pr.id_promocion} className="promo-card">
+              <div className="promo-info">
+                <div className={`promo-badge ${pr.descuento && pr.descuento.includes('%') ? 'badge-desc' : 'badge-combo'}`}>
+                  {pr.descuento || 'Promo'}
+                </div>
+                <div className="promo-name">{pr.titulo}</div>
+                <p className="promo-desc">{pr.descripcion}</p>
+                {pr.producto_nombre && (
+                  <div className="promo-price">{pr.producto_nombre}</div>
+                )}
+              </div>
+              <div className="promo-img">🏷️</div>
             </div>
-            <div className="promo-img">🥪</div>
-          </div>
-          <div className="promo-card">
-            <div className="promo-info">
-              <div className="promo-badge badge-desc">Descuento</div>
-              <div className="promo-name">Descuento en café</div>
-              <p className="promo-desc">Todos los miércoles 20% de descuento en cafés seleccionados.</p>
-              <div className="promo-price promo-off">20% OFF</div>
-            </div>
-            <div className="promo-img">☕</div>
-          </div>
+          ))}
         </div>
+
+        {destacados.length > 0 && (
+          <>
+            <div className="section-title" style={{ marginTop: '34px' }}>Los más pedidos</div>
+            <div className="promos-grid">
+              {destacados.map(p => (
+                <div key={p.id_producto} className="promo-card" style={{ cursor: 'pointer' }} onClick={() => navigate('/menu')}>
+                  <div className="promo-info">
+                    <div className="promo-badge badge-combo">{p.unidad || 'Disponible'}</div>
+                    <div className="promo-name">{p.nombre}</div>
+                    <p className="promo-desc">{p.descripcion}</p>
+                    <div className="promo-price">${Number(p.precio).toFixed(2)}</div>
+                  </div>
+                  <div className="promo-img">🍽️</div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

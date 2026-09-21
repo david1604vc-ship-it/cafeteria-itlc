@@ -252,3 +252,30 @@ body { font-family: 'DM Sans', sans-serif; background: #f0f7f8; overflow-x: hidd
   .hero-img { font-size: 60px; }
   .promos-grid { grid-template-columns: 1fr; }
 }
+/* ════════════════════════════════════════════════════════════════════════
+   RESPONSIVE (agregado) — tablet y móvil
+   ════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .layout { flex-direction: column; }
+  .sidebar {
+    width: 100%; height: auto; flex-direction: row; align-items: center;
+    padding: 10px 14px; gap: 10px; overflow-x: auto;
+  }
+  .sidebar-brand { flex-shrink: 0; }
+  .sidebar-nav { flex-direction: row; gap: 4px; flex: 1; }
+  .nav-item { padding: 8px 10px; }
+  .sidebar-footer { margin: 0; padding: 0; border-top: none; border-left: 1px solid #e5f3f5; }
+  .logout-btn { padding: 8px 10px; }
+  .main { padding: 18px 14px; }
+  .hero { flex-direction: column; text-align: center; gap: 20px; padding: 26px 18px; }
+  .hero-text { align-items: center; }
+  .hero-title { font-size: 30px; }
+  .hero-img { font-size: 110px; order: -1; }
+  .promos-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .main { padding: 14px 10px; }
+  .hero-title { font-size: 25px; }
+  .section-title { font-size: 19px; }
+  .promo-card { padding: 16px; }
+}

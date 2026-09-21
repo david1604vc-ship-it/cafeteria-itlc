@@ -183,3 +183,115 @@ body { font-family: 'DM Sans', sans-serif; background: #f8fdfe; }
 
 /* ── Legend ── */
 .ad-legend { display: flex; gap: 16px; font-size: 12px; color: #9abdc1; align-items: center; }
+/* ════════════════════════════════════════════════════════════════════════
+   MODALES, FORMULARIOS Y TABLAS RESPONSIVE (agregado)
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ── Tablas con scroll horizontal en pantallas chicas ── */
+.ad-table-scroll { width: 100%; overflow-x: auto; }
+.ad-table { min-width: 640px; }
+
+/* ── Modal ── */
+.ad-modal-overlay {
+  position: fixed; inset: 0; background: rgba(6, 40, 46, 0.55);
+  backdrop-filter: blur(3px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; padding: 16px;
+}
+.ad-modal {
+  background: #fff; border-radius: 16px; width: 100%; max-width: 560px;
+  max-height: 92vh; overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  animation: adModalIn 0.18s ease-out;
+}
+@keyframes adModalIn { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
+.ad-modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid #e5f3f5;
+  position: sticky; top: 0; background: #fff; z-index: 2;
+}
+.ad-modal-title { font-weight: 700; font-size: 16px; color: #0e4a52; }
+.ad-modal-close {
+  border: none; background: #eef7f8; color: #35707a; width: 30px; height: 30px;
+  border-radius: 8px; cursor: pointer; font-size: 14px; line-height: 1;
+}
+.ad-modal-close:hover { background: #dceef1; }
+.ad-modal-body { padding: 18px 20px; }
+.ad-modal-footer {
+  display: flex; justify-content: flex-end; gap: 10px;
+  padding: 14px 20px; border-top: 1px solid #e5f3f5;
+  position: sticky; bottom: 0; background: #fff;
+}
+
+/* ── Formulario en grilla ── */
+.ad-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.ad-field { display: flex; flex-direction: column; gap: 5px; }
+.ad-field-full { grid-column: 1 / -1; }
+.ad-field span { font-size: 12px; font-weight: 600; color: #35707a; }
+.ad-field input,
+.ad-field select,
+.ad-field textarea {
+  border: 1.5px solid #d3e9ec; border-radius: 10px; padding: 9px 12px;
+  font-size: 13px; color: #0e4a52; background: #fbfeff; outline: none;
+  font-family: inherit; resize: vertical;
+}
+.ad-field input:focus,
+.ad-field select:focus,
+.ad-field textarea:focus { border-color: #00BCD4; box-shadow: 0 0 0 3px rgba(0,188,212,0.12); }
+.ad-form-error {
+  margin-top: 12px; color: #e53935; font-size: 12.5px; text-align: center;
+  background: #fdecea; border-radius: 8px; padding: 8px 10px;
+}
+.ad-btn-secondary {
+  border: 1.5px solid #d3e9ec; background: #fff; color: #35707a;
+  border-radius: 10px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.ad-btn-secondary:hover { background: #f2fafb; }
+
+/* ── Fila de detalle en modal de pedido ── */
+.ad-detalle-row { font-size: 13px; color: #35707a; margin-bottom: 6px; }
+
+/* ── Select de estado del pedido ── */
+.ad-estado-select {
+  border: 1.5px solid #d3e9ec; border-radius: 8px; padding: 5px 8px;
+  font-size: 12px; color: #0e4a52; background: #fbfeff; cursor: pointer;
+  font-family: inherit; outline: none;
+}
+.ad-estado-select:focus { border-color: #00BCD4; }
+
+/* ════════════════════════════════════════════════════════════════════════
+   RESPONSIVE — tablet y móvil
+   ════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .ad-layout { flex-direction: column; }
+
+  /* Sidebar arriba, horizontal y compacta */
+  .ad-sidebar {
+    width: 100%; height: auto; flex-direction: row; align-items: center;
+    padding: 10px 14px; gap: 10px; overflow-x: auto;
+  }
+  .ad-brand { flex-shrink: 0; }
+  .ad-avatar { width: 34px; height: 34px; font-size: 15px; }
+  .ad-name { font-size: 13px; }
+  .ad-role { font-size: 10px; }
+  .ad-nav { flex-direction: row; gap: 4px; flex: 1; }
+  .ad-item { padding: 8px 10px; font-size: 12px; white-space: nowrap; }
+  .ad-icon { width: 15px; height: 15px; }
+  .ad-footer { margin: 0; padding: 0; border-top: none; border-left: 1px solid #e5f3f5; }
+  .ad-logout { padding: 8px 10px; font-size: 12px; white-space: nowrap; }
+
+  .ad-main { padding: 16px 14px; }
+  .ad-stats-grid { grid-template-columns: 1fr; }
+  .ad-accesos { grid-template-columns: repeat(2, 1fr); }
+  .ad-page-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .ad-form-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .ad-item span, .ad-logout span { display: none; }
+  .ad-main { padding: 12px 10px; }
+  .ad-stat-val { font-size: 22px; }
+  .ad-search-input { width: 100%; }
+  .ad-modal { border-radius: 12px; }
+  .ad-modal-body { padding: 14px; }
+}

@@ -1,100 +1,32 @@
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import api from '../api/axios'
 import './Menu.css'
 import { useScrollSidebar } from '../hooks/useScrollSidebar'
+import { useCart } from '../context/CartContext'
 
-const DATA = {
-  comida: {
-    icon: '🍽️', name: 'Comida', sub: 'Sándwiches, tortas, antojitos y más',
-    chips: [
-      { k: 'todos', l: 'Todos' }, { k: 'sandwich', l: '🥪 Sándwich' },
-      { k: 'torta', l: '🫓 Tortas' }, { k: 'antojitos', l: '🌮 Antojitos' },
-      { k: 'combos', l: '🍱 Combos' }, { k: 'otros', l: '🍽️ Otros' }
-    ],
-    prods: [
-      { n: 'Club Sándwich', i: '🥪', p: 80, u: '1 plato', d: 'Triple con jamón, pollo, queso, lechuga, tomate y papas.', sub: 'sandwich' },
-      { n: 'Sándwich Caprese', i: '🍅', p: 65, u: '1 pieza', d: 'Mozzarella, jitomate y albahaca fresca.', sub: 'sandwich' },
-      { n: 'Sándwich de Pollo', i: '🐔', p: 70, u: '1 pieza', d: 'Pollo a la plancha con lechuga y tomate.', sub: 'sandwich' },
-      { n: 'Torta de Milanesa', i: '🫓', p: 75, u: '1 pieza', d: 'Milanesa de res con frijoles y aguacate.', sub: 'torta' },
-      { n: 'Torta Cubana', i: '🥩', p: 85, u: '1 pieza', d: 'Jamón, queso, chorizo y milanesa.', sub: 'torta' },
-      { n: 'Tacos de Barbacoa', i: '🌮', p: 65, u: '3 piezas', d: 'Barbacoa de res con cilantro, cebolla y salsa.', sub: 'antojitos' },
-      { n: 'Tacos al Pastor', i: '🌮', p: 60, u: '3 piezas', d: 'Cerdo al pastor con piña, cilantro y cebolla.', sub: 'antojitos' },
-      { n: 'Quesadillas', i: '🫔', p: 55, u: '2 piezas', d: 'Con queso y opción de guisado.', sub: 'antojitos' },
-      { n: 'Enchiladas Verdes', i: '🥗', p: 75, u: '4 piezas', d: 'Con salsa verde, crema y queso.', sub: 'antojitos' },
-      { n: 'Combo Sándwich+Agua', i: '🍱', p: 85, u: '1 combo', d: 'Sándwich club + agua fresca del día.', sub: 'combos' },
-      { n: 'Combo Tacos+Refresco', i: '🍱', p: 80, u: '1 combo', d: '3 tacos al pastor + refresco 600ml.', sub: 'combos' },
-      { n: 'Morisqueta', i: '🍚', p: 85, u: '1 plato', d: 'Arroz, frijoles, carne asada y plátano.', sub: 'otros' },
-      { n: 'Ensalada César', i: '🥗', p: 70, u: '1 plato', d: 'Lechuga romana, crutones y aderezo césar.', sub: 'otros' },
-    ]
-  },
-  bebidas: {
-    icon: '🥤', name: 'Bebidas', sub: 'Cafés, frappes, jugos y licuados',
-    chips: [
-      { k: 'todos', l: 'Todos' }, { k: 'cafe', l: '☕ Cafés' },
-      { k: 'frappe', l: '🍫 Frappes' }, { k: 'jugo', l: '🍊 Jugos' },
-      { k: 'licuado', l: '🥛 Licuados' }
-    ],
-    prods: [
-      { n: 'Americano', i: '☕', p: 28, u: '1 vaso', d: 'Café espresso diluido en agua caliente.', sub: 'cafe' },
-      { n: 'Cappuccino', i: '☕', p: 35, u: '1 vaso', d: 'Café espresso con espuma de leche.', sub: 'cafe' },
-      { n: 'Latte', i: '☕', p: 38, u: '1 vaso', d: 'Espresso con leche vaporizada.', sub: 'cafe' },
-      { n: 'Frappe Mocha', i: '🍫', p: 42, u: '1 vaso', d: 'Frappé con chocolate, crema batida y toque de chocolate.', sub: 'frappe' },
-      { n: 'Frappe Caramelo', i: '🍮', p: 42, u: '1 vaso', d: 'Frappé con caramelo, crema batida y salsa de caramelo.', sub: 'frappe' },
-      { n: 'Jugo de Naranja', i: '🍊', p: 28, u: '1 vaso', d: 'Jugo natural de naranja recién exprimida.', sub: 'jugo' },
-      { n: 'Jugo Verde', i: '🥬', p: 30, u: '1 vaso', d: 'Nopal, piña, apio, manzana y limón.', sub: 'jugo' },
-      { n: 'Licuado de Fresa', i: '🍓', p: 35, u: '1 vaso', d: 'Licuado de fresa con leche y azúcar.', sub: 'licuado' },
-      { n: 'Licuado de Plátano', i: '🍌', p: 32, u: '1 vaso', d: 'Licuado de plátano con leche y canela.', sub: 'licuado' },
-    ]
-  },
-  postres: {
-    icon: '🍰', name: 'Postres', sub: 'Pasteles, muffins y más',
-    chips: [
-      { k: 'todos', l: 'Todos' }, { k: 'pastel', l: '🎂 Pasteles' },
-      { k: 'muffin', l: '🧁 Muffins' }
-    ],
-    prods: [
-      { n: 'Cheesecake de Fresa', i: '🍰', p: 50, u: '1 pieza', d: 'Suave cheesecake con cobertura de fresa.', sub: 'pastel' },
-      { n: 'Pastel de Chocolate', i: '🎂', p: 42, u: '1 rebanada', d: 'Pastel de chocolate con cobertura cremosa.', sub: 'pastel' },
-      { n: 'Pastel de Zanahoria', i: '🥕', p: 40, u: '1 rebanada', d: 'Con betún de queso crema.', sub: 'pastel' },
-      { n: 'Muffin de Chocolate', i: '🧁', p: 25, u: '1 pieza', d: 'Suave muffin de chocolate con chispas.', sub: 'muffin' },
-      { n: 'Muffin de Arándanos', i: '🫐', p: 25, u: '1 pieza', d: 'Muffin esponjoso con arándanos naturales.', sub: 'muffin' },
-      { n: 'Muffin de Vainilla', i: '🧁', p: 22, u: '1 pieza', d: 'Suave muffin con betún de vainilla.', sub: 'muffin' },
-    ]
-  },
-  otros: {
-    icon: '🛍️', name: 'Otros', sub: 'Refrescos, sabritas, dulces y galletas',
-    chips: [
-      { k: 'todos', l: 'Todos' }, { k: 'refresco', l: '🥤 Refrescos' },
-      { k: 'botana', l: '🍟 Botanas' }, { k: 'dulce', l: '🍬 Dulces' }
-    ],
-    prods: [
-      { n: 'Refresco', i: '🥤', p: 22, u: '600ml', d: 'Variedad de sabores disponibles.', sub: 'refresco' },
-      { n: 'Agua Mineral', i: '💧', p: 18, u: '600ml', d: 'Natural o con gas.', sub: 'refresco' },
-      { n: 'Agua Fresca', i: '🧃', p: 20, u: '1 vaso', d: 'Jamaica, horchata o limón.', sub: 'refresco' },
-      { n: 'Papas Sabritas', i: '🍟', p: 25, u: '1 bolsa', d: 'Papas fritas sabor original.', sub: 'botana' },
-      { n: 'Chetos', i: '🧡', p: 20, u: '1 bolsa', d: 'Crujientes y deliciosos.', sub: 'botana' },
-      { n: 'Dulces', i: '🍬', p: 10, u: '1 pieza', d: 'Variedad de dulces y gomitas.', sub: 'dulce' },
-      { n: 'Galletas Oreo', i: '🍪', p: 20, u: '1 paquete', d: 'Galletas de chocolate clásicas.', sub: 'dulce' },
-      { n: 'Chocolates', i: '🍫', p: 20, u: '1 pieza', d: 'Variedad de marcas y sabores.', sub: 'dulce' },
-    ]
-  },
-  promociones: {
-    icon: '🏷️', name: 'Promociones', sub: 'Combos y descuentos especiales',
-    chips: [],
-    prods: [
-      { n: 'Sándwich + Bebida', i: '🥪', p: 85, u: 'Combo del día', d: 'Sándwich club + bebida incluida.', sub: 'combo' },
-      { n: 'Descuento en café', i: '☕', p: 0, u: '20% OFF miércoles', d: 'En cafés seleccionados.', sub: 'descuento' },
-      { n: 'Combo Tacos+Refresco', i: '🍱', p: 80, u: 'Precio especial', d: '3 tacos al pastor + refresco 600ml.', sub: 'combo' },
-    ]
-  }
+// ── Constantes de presentación ────────────────────────────────────────────
+
+// Emoji por subcategoría (fallback cuando el producto no tiene imagen)
+const EMOJI_SUB = {
+  sandwich: '🥪', torta: '🫓', antojitos: '🌮', combos: '🍱', otros: '🍽️',
+  cafe: '☕', frappe: '🍫', jugo: '🍊', licuado: '🥛',
+  pastel: '🍰', muffin: '🧁',
+  refresco: '🥤', botana: '🍟', dulce: '🍬',
 }
 
-const POPULARES = {
-  comida:  ['Club Sándwich', 'Torta Cubana', 'Tacos de Barbacoa', 'Quesadillas'],
-  bebidas: ['Cappuccino', 'Frappe Mocha', 'Jugo de Naranja', 'Licuado de Fresa'],
-  postres: ['Cheesecake de Fresa', 'Pastel de Chocolate', 'Muffin de Chocolate', 'Muffin de Arándanos'],
-  otros:   ['Refresco', 'Papas Sabritas', 'Dulces', 'Galletas Oreo'],
+const EMOJI_DEFECTO = {
+  Comida: '🍽️', Bebidas: '🥤', Postres: '🍰', Otros: '🛍️', Promociones: '🏷️',
 }
+
+const emojiDe = (prod) =>
+  prod.imagen_url ||
+  EMOJI_SUB[prod.subcategoria] ||
+  EMOJI_DEFECTO[prod.categoria] ||
+  prod.categoria_icono ||
+  '🍽️'
+
+const prettySub = (sub) => sub.charAt(0).toUpperCase() + sub.slice(1)
 
 const RESENAS_INICIALES = {
   'Club Sándwich': [
@@ -107,25 +39,16 @@ const RESENAS_INICIALES = {
     { u: 'Miguel A.', s: 5, t: 'Increíble, me encantó.', f: '05/05/2026' },
     { u: 'Sofia T.', s: 4, t: 'Muy buena, solo le faltó más salsa.', f: '04/05/2026' },
   ],
-  'Tacos de Barbacoa': [
-    { u: 'José M.', s: 4, t: 'Muy sabrosos, la barbacoa perfecta.', f: '06/05/2026' },
-    { u: 'Elena R.', s: 4, t: 'Ricos y abundantes.', f: '05/05/2026' },
-  ],
-  'Quesadillas': [
-    { u: 'Luisa P.', s: 3, t: 'Buenas, el queso podría ser más.', f: '05/05/2026' },
-  ],
 }
+
+// ── Componentes puros ─────────────────────────────────────────────────────
 
 function StarRow({ prod, rating, numResenas, onRate, onVerResenas }) {
   return (
     <div>
       <div className="mn-stars-row">
         {[1,2,3,4,5].map(v => (
-          <span
-            key={v}
-            className="mn-star"
-            onClick={() => onRate(prod.n, v)}
-          >
+          <span key={v} className="mn-star" onClick={() => onRate(prod.id_producto, v)}>
             {v <= rating ? '⭐' : '☆'}
           </span>
         ))}
@@ -143,16 +66,16 @@ function CardHoriz({ prod, fav, onToggleFav, onAdd, rating, numResenas, onRate, 
     <div className="mn-card-horiz">
       <div className="mn-card-img">{prod.i}</div>
       <div className="mn-card-body">
-        <div className="mn-card-name">{prod.n}</div>
-        <div className="mn-card-desc">{prod.d}</div>
-        <div className="mn-card-unit">{prod.u}</div>
+        <div className="mn-card-name">{prod.nombre}</div>
+        <div className="mn-card-desc">{prod.descripcion}</div>
+        <div className="mn-card-unit">{prod.unidad}</div>
         <StarRow prod={prod} rating={rating} numResenas={numResenas} onRate={onRate} onVerResenas={onVerResenas} />
         <div className="mn-card-footer">
-          <span className="mn-card-price">${prod.p}.00</span>
+          <span className="mn-card-price">${Number(prod.precio).toFixed(2)}</span>
           <div className="mn-card-actions">
             <button
               className={`mn-fav-btn ${fav ? 'active' : ''}`}
-              onClick={() => onToggleFav(prod.n)}
+              onClick={() => onToggleFav(prod.id_producto)}
               title="Agregar a favoritos"
             >
               {fav ? '❤️' : '🤍'}
@@ -205,15 +128,18 @@ function Sidebar() {
   )
 }
 
+// ── Página ────────────────────────────────────────────────────────────────
+
 function Menu() {
   const navigate = useNavigate()
+  const { agregarItem, totalItems, totalPrecio } = useCart()
+
   const [screen, setScreen] = useState('menu')
   const [secActiva, setSecActiva] = useState(null)
   const [chipActivo, setChipActivo] = useState('todos')
   const [tabActivo, setTabActivo] = useState('menu')
   const [busqueda, setBusqueda] = useState('')
   const [showDrop, setShowDrop] = useState(false)
-  const [carrito, setCarrito] = useState([])
   const [ratings, setRatings] = useState({})
   const [favoritos, setFavoritos] = useState({})
   const [resenasScreen, setResenasScreen] = useState(false)
@@ -223,28 +149,80 @@ function Menu() {
   const [filterStar, setFilterStar] = useState(0)
   const [resenas, setResenas] = useState(RESENAS_INICIALES)
 
+  // Datos de la API
+  const [categorias, setCategorias] = useState([])
+  const [productos, setProductos] = useState([])
+  const [cargando, setCargando] = useState(true)
+  const [errorApi, setErrorApi] = useState('')
+
   useScrollSidebar()
 
-  const totalItems = carrito.reduce((a, b) => a + b.qty, 0)
-  const totalPrecio = carrito.reduce((a, b) => a + b.p * b.qty, 0)
+  useEffect(() => {
+    let vivo = true
+    ;(async () => {
+      try {
+        const [cats, prods] = await Promise.all([
+          api.get('/menu/categorias'),
+          api.get('/menu/productos'),
+        ])
+        if (!vivo) return
+        setCategorias(cats.data)
+        setProductos(prods.data.map(p => ({ ...p, i: emojiDe(p) })))
+      } catch {
+        if (!vivo) return
+        setErrorApi('No se pudo cargar el menú. Intenta recargar la página.')
+      } finally {
+        if (vivo) setCargando(false)
+      }
+    })()
+    return () => { vivo = false }
+  }, [])
 
-  const agregarItem = (prod) => {
-    setCarrito(prev => {
-      const existe = prev.find(x => x.n === prod.n)
-      if (existe) return prev.map(x => x.n === prod.n ? { ...x, qty: x.qty + 1 } : x)
-      return [...prev, { ...prod, qty: 1 }]
-    })
-  }
+  // Secciones derivadas de la BD: una por categoría con productos
+  const secciones = useMemo(() => {
+    return categorias
+      .map(cat => ({
+        id: cat.id_categoria,
+        key: String(cat.id_categoria),
+        nombre: cat.nombre,
+        icono: cat.icono || EMOJI_DEFECTO[cat.nombre] || '🍽️',
+        esPromo: cat.nombre === 'Promociones',
+        prods: productos.filter(p => p.id_categoria === cat.id_categoria),
+      }))
+      .filter(s => s.prods.length > 0)
+  }, [categorias, productos])
+
+  const seccionesNormales = secciones.filter(s => !s.esPromo)
+  const seccionPromos = secciones.find(s => s.esPromo)
+  const secActual = secciones.find(s => s.key === secActiva)
+
+  // Chips: subcategorías presentes en los productos de la sección
+  const chipsActual = useMemo(() => {
+    if (!secActual) return []
+    const subs = [...new Set(secActual.prods.map(p => p.subcategoria).filter(Boolean))]
+    return [
+      { k: 'todos', l: 'Todos' },
+      ...subs.map(s => ({ k: s, l: `${EMOJI_SUB[s] || '•'} ${prettySub(s)}` })),
+    ]
+  }, [secActual])
+
+  const prodsFull = useMemo(() => {
+    if (!secActual) return []
+    return chipActivo === 'todos'
+      ? secActual.prods
+      : secActual.prods.filter(p => p.subcategoria === chipActivo)
+  }, [secActual, chipActivo])
 
   const starsStr = (n) => '⭐'.repeat(n) + '☆'.repeat(5 - n)
-  const getRating = (nombre) => ratings[nombre] ?? 3
+  const getRating = (id) => ratings[id] ?? 3
   const getAvg = (nombre) => {
     const rs = resenas[nombre] || []
     if (rs.length === 0) return '0.0'
     return (rs.reduce((a, b) => a + b.s, 0) / rs.length).toFixed(1)
   }
+  const numResenasDe = (prod) => (resenas[prod.nombre] || []).length
 
-  const toggleFav = (nombre) => setFavoritos(prev => ({ ...prev, [nombre]: !prev[nombre] }))
+  const toggleFav = (id) => setFavoritos(prev => ({ ...prev, [id]: !prev[id] }))
 
   const openResenas = (prod) => {
     setProdActivo(prod)
@@ -260,17 +238,17 @@ function Menu() {
     if (!arText.trim()) { alert('Escribe un comentario'); return }
     setResenas(prev => ({
       ...prev,
-      [prodActivo.n]: [{ u: 'Tú', s: arStar, t: arText, f: 'Hoy' }, ...(prev[prodActivo.n] || [])]
+      [prodActivo.nombre]: [{ u: 'Tú', s: arStar, t: arText, f: 'Hoy' }, ...(prev[prodActivo.nombre] || [])]
     }))
     setArStar(0)
     setArText('')
   }
 
-  const openFull = (sec) => {
-    setSecActiva(sec)
+  const openFull = (key) => {
+    setSecActiva(key)
     setChipActivo('todos')
     setScreen('full')
-    setTabActivo(sec)
+    setTabActivo(key)
   }
 
   const volverMenu = () => {
@@ -278,30 +256,51 @@ function Menu() {
     setTabActivo('menu')
   }
 
-  const allProds = Object.entries(DATA).flatMap(([sec, d]) => d.prods.map(p => ({ ...p, sec })))
   const resultados = busqueda.trim()
-    ? allProds.filter(p => p.n.toLowerCase().includes(busqueda.toLowerCase()))
-    : []
-
-  const prodsFull = secActiva
-    ? (chipActivo === 'todos'
-      ? DATA[secActiva].prods
-      : DATA[secActiva].prods.filter(p => p.sub === chipActivo))
+    ? productos.filter(p => p.nombre.toLowerCase().includes(busqueda.toLowerCase()))
     : []
 
   const renderCard = (p) => (
     <CardHoriz
-      key={p.n}
+      key={p.id_producto}
       prod={p}
-      fav={!!favoritos[p.n]}
+      fav={!!favoritos[p.id_producto]}
       onToggleFav={toggleFav}
       onAdd={agregarItem}
-      rating={getRating(p.n)}
-      numResenas={(resenas[p.n] || []).length}
-      onRate={(nombre, v) => setRatings(prev => ({ ...prev, [nombre]: v }))}
+      rating={getRating(p.id_producto)}
+      numResenas={numResenasDe(p)}
+      onRate={(id, v) => setRatings(prev => ({ ...prev, [id]: v }))}
       onVerResenas={openResenas}
     />
   )
+
+  if (cargando) {
+    return (
+      <div className="mn-layout">
+        <Sidebar />
+        <div className="mn-main" id="main" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+          <div style={{ textAlign: 'center', color: '#9abdc1' }}>
+            <div style={{ fontSize: '40px', marginBottom: '10px' }}>☕</div>
+            Cargando el menú...
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (errorApi) {
+    return (
+      <div className="mn-layout">
+        <Sidebar />
+        <div className="mn-main" id="main" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+          <div style={{ textAlign: 'center', color: '#ef5350', padding: '20px' }}>
+            <div style={{ fontSize: '40px', marginBottom: '10px' }}>⚠️</div>
+            {errorApi}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   if (resenasScreen && prodActivo) {
     return (
@@ -316,12 +315,12 @@ function Menu() {
             <div className="mn-rh-header">
               <div className="mn-rh-img">{prodActivo.i}</div>
               <div>
-                <div className="mn-rh-name">{prodActivo.n}</div>
+                <div className="mn-rh-name">{prodActivo.nombre}</div>
                 <div className="mn-rh-avg">
-                  <span className="mn-rh-avg-num">{getAvg(prodActivo.n)}</span>
-                  <span className="mn-rh-stars">{starsStr(Math.round(parseFloat(getAvg(prodActivo.n))))}</span>
+                  <span className="mn-rh-avg-num">{getAvg(prodActivo.nombre)}</span>
+                  <span className="mn-rh-stars">{starsStr(Math.round(parseFloat(getAvg(prodActivo.nombre))))}</span>
                 </div>
-                <div className="mn-rh-count">{(resenas[prodActivo.n] || []).length} reseñas</div>
+                <div className="mn-rh-count">{numResenasDe(prodActivo)} reseñas</div>
               </div>
             </div>
 
@@ -357,7 +356,7 @@ function Menu() {
             </div>
 
             {(() => {
-              const data = (resenas[prodActivo.n] || []).filter(r => filterStar === 0 || r.s === filterStar)
+              const data = (resenas[prodActivo.nombre] || []).filter(r => filterStar === 0 || r.s === filterStar)
               if (data.length === 0) return <div className="mn-no-resenas">No hay reseñas para este filtro 😕</div>
               return data.map((r, i) => (
                 <div key={i} className="mn-resena-card">
@@ -405,14 +404,14 @@ function Menu() {
                 <div className="mn-search-drop">
                   {resultados.length === 0
                     ? <div className="mn-no-res">No se encontraron productos 😕</div>
-                    : resultados.map((p, i) => (
-                      <div key={i} className="mn-search-item" onMouseDown={() => openFull(p.sec)}>
+                    : resultados.map(p => (
+                      <div key={p.id_producto} className="mn-search-item" onMouseDown={() => openFull(String(p.id_categoria))}>
                         <div className="mn-si-icon">{p.i}</div>
                         <div>
-                          <div className="mn-si-name">{p.n}</div>
-                          <div className="mn-si-cat">{DATA[p.sec].name}</div>
+                          <div className="mn-si-name">{p.nombre}</div>
+                          <div className="mn-si-cat">{p.categoria}</div>
                         </div>
-                        <div className="mn-si-price">{p.p > 0 ? `$${p.p}.00` : p.u}</div>
+                        <div className="mn-si-price">{Number(p.precio) > 0 ? `$${Number(p.precio).toFixed(2)}` : p.unidad}</div>
                       </div>
                     ))
                   }
@@ -436,11 +435,7 @@ function Menu() {
           <div className="mn-tabs">
             {[
               { k: 'menu', l: '⊞ Menú' },
-              { k: 'comida', l: '🍽️ Comida' },
-              { k: 'bebidas', l: '🥤 Bebidas' },
-              { k: 'postres', l: '🍰 Postres' },
-              { k: 'otros', l: '🛍️ Otros' },
-              { k: 'promociones', l: '🏷️ Promociones' },
+              ...secciones.map(s => ({ k: s.key, l: `${s.icono} ${s.nombre}` })),
             ].map(t => (
               <button
                 key={t.k}
@@ -456,58 +451,40 @@ function Menu() {
         <div className="mn-content">
           {screen === 'menu' && (
             <div>
-              {['comida', 'bebidas', 'postres', 'otros'].map(sec => (
-                <div key={sec} className="mn-sec-block">
+              {seccionesNormales.map(sec => (
+                <div key={sec.key} className="mn-sec-block">
                   <div className="mn-sec-header">
                     <div className="mn-sec-header-left">
-                      <span className="mn-sec-icon">{DATA[sec].icon}</span>
-                      <span className="mn-sec-title">{DATA[sec].name}</span>
+                      <span className="mn-sec-icon">{sec.icono}</span>
+                      <span className="mn-sec-title">{sec.nombre}</span>
                       <span className="mn-sec-popular">· más populares</span>
                     </div>
-                    <div className="mn-ver-mas" onClick={() => openFull(sec)}>Ver todos ›</div>
+                    <div className="mn-ver-mas" onClick={() => openFull(sec.key)}>Ver todos ›</div>
                   </div>
                   <div className="mn-grid-horiz">
-                    {DATA[sec].prods
-                      .filter(p => POPULARES[sec].includes(p.n))
-                      .map(p => renderCard(p))
-                    }
+                    {sec.prods.slice(0, 4).map(p => renderCard(p))}
                   </div>
                 </div>
               ))}
 
-              <div className="mn-sec-block">
-                <div className="mn-sec-header">
-                  <div className="mn-sec-header-left">
-                    <span className="mn-sec-icon">🏷️</span>
-                    <span className="mn-sec-title">Promociones</span>
-                  </div>
-                  <div className="mn-ver-mas" onClick={() => openFull('promociones')}>Ver todos ›</div>
-                </div>
-                <div className="mn-grid-promo">
-                  <div className="mn-promo-card">
-                    <div className="mn-promo-info">
-                      <div className="mn-promo-badge mn-badge-combo">Combo del día</div>
-                      <div className="mn-promo-name">Sándwich + Bebida</div>
-                      <p className="mn-promo-desc">Disfruta nuestro combo especial del día con bebida incluida.</p>
-                      <div className="mn-promo-price">$85.00</div>
+              {seccionPromos && seccionPromos.prods.length > 0 && (
+                <div className="mn-sec-block">
+                  <div className="mn-sec-header">
+                    <div className="mn-sec-header-left">
+                      <span className="mn-sec-icon">🏷️</span>
+                      <span className="mn-sec-title">Promociones</span>
                     </div>
-                    <div className="mn-promo-img">🥪</div>
+                    <div className="mn-ver-mas" onClick={() => openFull(seccionPromos.key)}>Ver todos ›</div>
                   </div>
-                  <div className="mn-promo-card">
-                    <div className="mn-promo-info">
-                      <div className="mn-promo-badge mn-badge-desc">Descuento</div>
-                      <div className="mn-promo-name">Descuento en café</div>
-                      <p className="mn-promo-desc">Todos los miércoles 20% de descuento en cafés seleccionados.</p>
-                      <div className="mn-promo-price" style={{ color: '#ff9800' }}>20% OFF</div>
-                    </div>
-                    <div className="mn-promo-img">☕</div>
+                  <div className="mn-grid-horiz">
+                    {seccionPromos.prods.slice(0, 4).map(p => renderCard(p))}
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
-          {screen === 'full' && secActiva && (
+          {screen === 'full' && secActual && (
             <div>
               <div className="mn-back-btn" onClick={volverMenu}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -516,17 +493,17 @@ function Menu() {
                 Volver al menú
               </div>
               <div className="mn-full-header">
-                <div className="mn-full-icon">{DATA[secActiva].icon}</div>
+                <div className="mn-full-icon">{secActual.icono}</div>
                 <div>
-                  <div className="mn-full-name">{DATA[secActiva].name}</div>
-                  <div className="mn-full-sub">{DATA[secActiva].sub}</div>
+                  <div className="mn-full-name">{secActual.nombre}</div>
+                  <div className="mn-full-sub">{secActual.prods.length} productos disponibles</div>
                 </div>
               </div>
-              {DATA[secActiva].chips.length > 0 && (
+              {chipsActual.length > 1 && (
                 <div className="mn-chips">
-                  {DATA[secActiva].chips.map((c, i) => (
+                  {chipsActual.map(c => (
                     <div
-                      key={i}
+                      key={c.k}
                       className={`mn-chip ${chipActivo === c.k ? 'active' : ''}`}
                       onClick={() => setChipActivo(c.k)}
                     >

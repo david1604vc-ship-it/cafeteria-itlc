@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Pedido.css'
+import { useCart } from '../context/CartContext'
 
 function Sidebar() {
   const navigate = useNavigate()
@@ -41,30 +42,21 @@ function Sidebar() {
 
 function Pedido() {
   const navigate = useNavigate()
-  const [items, setItems] = useState([
-    { n: 'Club Sándwich', i: '🥪', p: 80, u: '1 plato', qty: 1 },
-    { n: 'Frappe Mocha', i: '🍫', p: 42, u: '1 vaso', qty: 2 },
-    { n: 'Cheesecake de Fresa', i: '🍰', p: 50, u: '1 pieza', qty: 1 },
-  ])
+  const { carrito, cambiarCantidad, eliminarItem, vaciar } = useCart()
   const [ticketOpen, setTicketOpen] = useState(true)
   const [nota, setNota] = useState('')
 
-  const total = items.reduce((a, b) => a + b.p * b.qty, 0)
-
-  const chQty = (i, d) => {
-    setItems(prev => prev.map((it, idx) =>
-      idx === i ? { ...it, qty: Math.max(1, it.qty + d) } : it
-    ))
-  }
-
-  const del = (i) => setItems(prev => prev.filter((_, idx) => idx !== i))
-  const vaciar = () => setItems([])
+  const total = carrito.reduce((a, b) => a + b.p * b.qty, 0)
 
   const now = new Date()
   const fecha = now.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })
   const hora = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
-  // Folio estable: se genera una sola vez en el montaje del componente
+  // Folio provisional (el real lo genera el backend al confirmar)
   const [folio] = useState(() => '#' + String(Math.floor(1000 + Math.random() * 9000)))
+
+  const continuarPago = () => {
+    navigate('/pago', { state: { nota } })
+  }
 
   return (
     <div className="pd-layout">
@@ -89,10 +81,12 @@ function Pedido() {
             <div className="pd-card">
               <div className="pd-card-header">
                 <span className="pd-card-title">Productos seleccionados</span>
-                <span className="pd-vaciar" onClick={vaciar}>Vaciar todo</span>
+                {carrito.length > 0 && (
+                  <span className="pd-vaciar" onClick={vaciar}>Vaciar todo</span>
+                )}
               </div>
 
-              {items.length === 0 ? (
+              {carrito.length === 0 ? (
                 <div className="pd-empty">
                   <div className="pd-empty-icon">🛒</div>
                   <div className="pd-empty-t">Tu pedido está vacío</div>
@@ -100,20 +94,20 @@ function Pedido() {
                   <button className="pd-menu-btn" onClick={() => navigate('/menu')}>Ir al menú</button>
                 </div>
               ) : (
-                items.map((it, i) => (
-                  <div key={i} className="pd-prod-item">
+                carrito.map(it => (
+                  <div key={it.id_producto} className="pd-prod-item">
                     <div className="pd-prod-img">{it.i}</div>
                     <div className="pd-prod-info">
                       <div className="pd-prod-name">{it.n}</div>
                       <div className="pd-prod-unit">{it.u}</div>
                     </div>
                     <div className="pd-qty-wrap">
-                      <button className="pd-qb pd-minus" onClick={() => chQty(i, -1)}>−</button>
+                      <button className="pd-qb pd-minus" onClick={() => cambiarCantidad(it.id_producto, -1)}>−</button>
                       <span className="pd-qn">{it.qty}</span>
-                      <button className="pd-qb" onClick={() => chQty(i, 1)}>+</button>
+                      <button className="pd-qb" onClick={() => cambiarCantidad(it.id_producto, 1)}>+</button>
                     </div>
                     <span className="pd-prod-price">${(it.p * it.qty).toFixed(2)}</span>
-                    <button className="pd-del" onClick={() => del(i)}>✕</button>
+                    <button className="pd-del" onClick={() => eliminarItem(it.id_producto)}>✕</button>
                   </div>
                 ))
               )}
@@ -164,8 +158,8 @@ function Pedido() {
                   <span style={{ textAlign: 'center' }}>Cant.</span>
                   <span style={{ textAlign: 'right' }}>Precio</span>
                 </div>
-                {items.map((it, i) => (
-                  <div key={i} className="pd-t-row">
+                {carrito.map(it => (
+                  <div key={it.id_producto} className="pd-t-row">
                     <span className="pd-t-rname">{it.n}</span>
                     <span className="pd-t-rqty">{it.qty}</span>
                     <span className="pd-t-rprice">${(it.p * it.qty).toFixed(2)}</span>
@@ -182,8 +176,8 @@ function Pedido() {
 
             <button
               className="pd-pagar-btn"
-              disabled={items.length === 0}
-              onClick={() => navigate('/pago')}
+              disabled={carrito.length === 0}
+              onClick={continuarPago}
             >
               PAGAR
             </button>
