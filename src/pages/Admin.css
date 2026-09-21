@@ -295,3 +295,74 @@ body { font-family: 'DM Sans', sans-serif; background: #f8fdfe; }
   .ad-modal { border-radius: 12px; }
   .ad-modal-body { padding: 14px; }
 }
+
+/* Respetar el notch en móviles (barras superiores horizontales) */
+@media (max-width: 900px) {
+  .pd-sidebar, .mn-sidebar, .sidebar, .ad-sidebar {
+    padding-top: calc(10px + env(safe-area-inset-top));
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   BARRA SUPERIOR EN MÓVIL — correcciones definitivas
+   ════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .ad-sidebar {
+    display: flex !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    padding: 10px 14px !important;
+    padding-top: calc(10px + env(safe-area-inset-top)) !important;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ad-brand { flex-shrink: 0; padding: 4px 8px; gap: 8px; }
+  .ad-avatar { width: 34px; height: 34px; font-size: 15px; }
+  .ad-name { font-size: 13px; }
+  .ad-role { font-size: 10px; }
+  .ad-nav {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 2px;
+    flex: 1;
+    padding: 0 !important;
+    overflow: visible;
+  }
+  .ad-item { padding: 8px 10px !important; margin: 0 !important; white-space: nowrap; font-size: 12px; }
+  .ad-icon { width: 15px; height: 15px; }
+  .ad-footer { margin: 0 !important; padding: 0 !important; border-top: none !important; border-left: 1px solid 
+rgba(255,255,255,0.25); flex-shrink: 0; }
+  .ad-logout { padding: 8px 10px !important; font-size: 12px; }
+  .ad-main { margin-left: 0 !important; padding: 16px 14px; }
+  .ad-stats-grid { grid-template-columns: 1fr; }
+  .ad-accesos { grid-template-columns: repeat(2, 1fr); }
+  .ad-page-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .ad-form-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .ad-main { padding: 12px 10px; }
+  .ad-stat-val { font-size: 22px; }
+  .ad-search-input { width: 100%; }
+  .ad-modal { border-radius: 12px; }
+  .ad-modal-body { padding: 14px; }
+}
+
+/* Ocultar scrollbar de las barras horizontales (se ve limpio en móvil) */
+@media (max-width: 900px) {
+  .sidebar, .mn-sidebar, .pd-sidebar, .ad-sidebar, .mn-tabs, .ad-nav, .pd-nav, .sidebar-nav {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .sidebar::-webkit-scrollbar,
+  .mn-sidebar::-webkit-scrollbar,
+  .pd-sidebar::-webkit-scrollbar,
+  .ad-sidebar::-webkit-scrollbar,
+  .mn-tabs::-webkit-scrollbar,
+  .ad-nav::-webkit-scrollbar,
+  .pd-nav::-webkit-scrollbar,
+  .sidebar-nav::-webkit-scrollbar { display: none; }
+}

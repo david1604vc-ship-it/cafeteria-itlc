@@ -246,3 +246,76 @@ body { font-family: 'DM Sans', sans-serif; background: #f8fdfe; }
   .pd-qb { width: 26px; height: 26px; }
   .pd-pagar-btn { font-size: 14px; padding: 13px; }
 }
+
+/* Respetar el notch en móviles (barras superiores horizontales) */
+@media (max-width: 900px) {
+  .pd-sidebar, .mn-sidebar, .sidebar, .ad-sidebar {
+    padding-top: calc(10px + env(safe-area-inset-top));
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   BARRA SUPERIOR EN MÓVIL — correcciones definitivas
+   ════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .pd-sidebar {
+    display: flex !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    padding: 10px 14px !important;
+    padding-top: calc(10px + env(safe-area-inset-top)) !important;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .pd-brand-label, .pd-nav-label, .pd-logout-label {
+    opacity: 1 !important;
+    transform: none !important;
+    pointer-events: auto !important;
+    display: inline;
+    font-size: 12px;
+  }
+  .pd-nav {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 2px;
+    flex: 1;
+    padding: 0 !important;
+    overflow: visible;
+  }
+  .pd-nav-item { padding: 8px 10px !important; margin: 0 !important; white-space: nowrap; }
+  .pd-nav-icon { width: 18px; height: 18px; }
+  .pd-brand { flex-shrink: 0; padding: 4px 8px; gap: 6px; }
+  .pd-brand-icon { font-size: 18px; }
+  .pd-footer { margin: 0 !important; padding: 0 !important; border-top: none !important; border-left: 1px solid rgba(255,255,255,0.25); flex-shrink: 0; }
+  .pd-logout { padding: 8px 10px !important; }
+  .pd-main { margin-left: 0 !important; padding: 16px 14px; }
+  .pd-two-col { grid-template-columns: 1fr; }
+  .pd-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+}
+@media (max-width: 480px) {
+  .pd-main { padding: 12px 10px; }
+  .pd-title { font-size: 20px; }
+  .pd-prod-name { font-size: 13px; }
+  .pd-qb { width: 26px; height: 26px; }
+  .pd-pagar-btn { font-size: 14px; padding: 13px; }
+}
+
+/* Ocultar scrollbar de las barras horizontales (se ve limpio en móvil) */
+@media (max-width: 900px) {
+  .sidebar, .mn-sidebar, .pd-sidebar, .ad-sidebar, .mn-tabs, .ad-nav, .pd-nav, .sidebar-nav {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .sidebar::-webkit-scrollbar,
+  .mn-sidebar::-webkit-scrollbar,
+  .pd-sidebar::-webkit-scrollbar,
+  .ad-sidebar::-webkit-scrollbar,
+  .mn-tabs::-webkit-scrollbar,
+  .ad-nav::-webkit-scrollbar,
+  .pd-nav::-webkit-scrollbar,
+  .sidebar-nav::-webkit-scrollbar { display: none; }
+}

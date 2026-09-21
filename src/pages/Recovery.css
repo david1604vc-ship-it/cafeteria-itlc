@@ -416,3 +416,25 @@
   transform: none;
   box-shadow: none;
 }
+/* ════════════════════════════════════════════════════════════════════════
+   MÓVIL VERTICAL (agregado) — alineado con el nuevo login responsive
+   ════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  .rc-wrap { padding: 14px 12px; align-items: flex-start; padding-top: max(14px, env(safe-area-inset-top)); }
+  .rc-card { border-radius: 18px; }
+  .rc-body { padding: 22px 18px 28px; }
+  /* Inputs >=16px evitan el zoom automático en iOS */
+  .rc-field input,
+  .rc-field select,
+  .rc-field textarea { font-size: 16px; padding: 13px 14px; }
+  .rc-code-input { font-size: 20px; padding: 13px 2px; }
+  .rc-btn { padding: 15px; font-size: 13px; width: 100%; }
+  .rc-steps { gap: 6px; }
+  .rc-form-sub { font-size: 12.5px; margin-bottom: 22px; }
+  .rc-info-box { padding: 12px 14px; font-size: 12.5px; }
+}
+@media (max-width: 360px) {
+  .rc-body { padding: 18px 14px 24px; }
+  .rc-form-title { font-size: 19px; }
+  .rc-code-input { font-size: 18px; }
+}

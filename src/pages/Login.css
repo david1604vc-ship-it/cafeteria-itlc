@@ -381,3 +381,119 @@
 .row2 .field {
   flex: 1;
 }
+/* ════════════════════════════════════════════════════════════════════════
+   RESPONSIVE (agregado) — móvil vertical es el diseño principal
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* Tablet: la tarjeta se adapta al ancho disponible */
+@media (max-width: 860px) {
+  .auth-card { width: 100%; max-width: 560px; }
+  .auth-left { width: 240px; padding: 36px 24px; }
+  .auth-right { padding: 36px 32px; }
+}
+
+/* Móvil vertical (<640px): tarjeta apilada, panel teal arriba como banner */
+@media (max-width: 640px) {
+  .auth-wrapper {
+    padding: 0;
+    align-items: stretch;
+  }
+  .auth-card {
+    width: 100%;
+    max-width: none;
+    min-height: 100vh;
+    min-height: 100dvh;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  /* Tabs a lado y lado arriba */
+  .auth-tabs { order: 0; }
+  .auth-tabs button { padding: 15px 8px; font-size: 10.5px; letter-spacing: 1.5px; }
+
+  .auth-body {
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  /* Panel teal: banner compacto arriba */
+  .auth-left {
+    order: 1;
+    width: 100%;
+    padding: 22px 24px;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
+  .auth-left::before { width: 130px; height: 130px; top: -50px; left: -40px; }
+  .auth-left::after  { width: 160px; height: 160px; bottom: -70px; right: -50px; }
+  .left-inner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-align: left;
+    width: 100%;
+  }
+  .logo-ring {
+    width: 54px; height: 54px;
+    font-size: 24px;
+    margin: 0;
+    flex-shrink: 0;
+  }
+  .brand-name { font-size: 20px; margin-bottom: 2px; }
+  .brand-sub { font-size: 9px; letter-spacing: 3px; margin-bottom: 0; }
+  .orn { display: none; }
+  .left-desc { display: none; }
+
+  /* Formulario llena el resto */
+  .auth-right {
+    order: 2;
+    flex: 1;
+    padding: 26px 22px 34px;
+  }
+  .form-title { font-size: 23px; }
+  .form-sub { margin-bottom: 22px; }
+
+  /* Campos cómodos para el dedo (evita zoom de iOS: >=16px) */
+  .field input { font-size: 16px; padding: 13px 15px; }
+  .field { margin-bottom: 15px; }
+  .btn-main { padding: 15px; font-size: 13px; }
+
+  /* Nombre/apellido en 2 columnas solo si caben */
+  .row2 { gap: 10px; }
+}
+
+/* Móvil muy angosto (<360px) */
+@media (max-width: 360px) {
+  .auth-right { padding: 22px 16px 28px; }
+  .form-title { font-size: 21px; }
+}
+
+/* Móvil horizontal: misma tarjeta apilada, centrada */
+@media (max-width: 950px) and (orientation: landscape) {
+  .auth-wrapper { padding: 16px; align-items: center; }
+  .auth-card {
+    width: 100%;
+    max-width: 720px;
+    min-height: 0;
+    border-radius: 18px;
+  }
+  .auth-body { flex-direction: row; min-height: 0; }
+  .auth-left {
+    width: 230px;
+    padding: 28px 22px;
+    flex-direction: column;
+    order: 0;
+  }
+  .left-inner { display: block; text-align: center; }
+  .logo-ring { width: 64px; height: 64px; font-size: 28px; margin: 0 auto 14px; }
+  .orn { display: flex; }
+  .left-desc { display: block; font-size: 12px; }
+  .auth-right { padding: 26px 30px; order: 1; overflow-y: auto; }
+}
+
+/* El formulario inicia justo bajo el banner (sin hueco central) */
+@media (max-width: 640px) {
+  .auth-right { justify-content: flex-start; padding-top: 30px; }
+}

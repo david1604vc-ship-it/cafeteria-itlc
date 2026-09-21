@@ -112,3 +112,10 @@
 .px-btn:active { transform: scale(0.98); }
 .px-primary { background: linear-gradient(135deg, #00BCD4, #0097a7); color: #fff; }
 .px-secondary { background: #eef7f8; color: #35707a; }
+
+/* Móvil: la tarjeta de éxito ocupa bien la pantalla vertical */
+@media (max-width: 480px) {
+  .px-wrap { align-items: flex-start; padding-top: max(48px, calc(env(safe-area-inset-top) + 32px)); }
+  .px-card { padding: 30px 22px; border-radius: 16px; }
+  .px-folio { font-size: 26px; }
+}
